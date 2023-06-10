@@ -68,7 +68,43 @@ const registerValidationResult = (req, res, next) => {
 };
 
 
+// forget password validators
+const forgetValidator = [
+    check('email')
+        .trim()
+        .notEmpty()
+        .withMessage('Email is required')
+        .isEmail()
+        .withMessage('Please add valid email'),
+
+    check('email').custom(async (value, { req }) => {
+        const { email } = req.body;
+        const user = await prisma.user.findUnique({
+            where: {
+                email
+            }
+        })
+        if (user) {
+            req.forgetUser = user;
+            return true;
+        }
+        throw new Error("User doesn't exists");
+    }),
+];
+
+// eslint-disable-next-line consistent-return
+const forgetValidationResult = async (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send({ success: false, message: errors.array()[0].msg })
+    }
+    next();
+};
+
+
 module.exports = {
     registerValidator,
-    registerValidationResult
+    registerValidationResult,
+    forgetValidator,
+    forgetValidationResult
 }
