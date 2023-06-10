@@ -50,3 +50,32 @@ module.exports.register = async (req, res) => {
       });
   }
 };
+
+exports.activate = async (req, res) => {
+    const { token } = req.params;
+    jwt.verify(token, process.env.ACCOUNT_ACTIVATION_SECRET, async (error, decoded) => {
+        if (error) {
+            return res.status(400).send({ success: false, message: "Account activation failed.Please try again register" })
+        }
+
+        const user = await prisma.user.findUnique({
+            where: {
+                email: decoded.email
+            }
+        });
+        if (!user.isVerified) {
+            await prisma.user.update({
+                data: {
+                    isVerified: true
+                },
+                where: {
+                    email: decoded.email
+                }
+            })
+            
+            return res.send({ success: true, message: "Account activate successfully.Please login" })
+        }
+
+        res.send({ success: true, message: "Account already activated.Please login" })
+    });
+};
