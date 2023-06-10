@@ -1,5 +1,5 @@
 const { check, validationResult } = require('express-validator');
-const User = require('../../models/User');
+const prisma = require("../../lib/prisma");
 
 const registerValidator = [
     check('firstName')
@@ -25,7 +25,11 @@ const registerValidator = [
     // .normalizeEmail()
 
     check('email').custom(async (email) => {
-        const user = await User.findOne({ email, isVerified: true });
+        const user = await prisma.user.findUnique({
+            where: {
+                email
+            }
+        })
         if (user) {
             throw new Error('Email is already registered!');
         } else {
@@ -55,20 +59,16 @@ const registerValidator = [
         }),
 ];
 
-// eslint-disable-next-line consistent-return
 const registerValidationResult = (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        const userInput = {
-            firstName: req.body.firstName,
-            lastName: req.body.lastName,
-            email: req.body.email,
-        };
-        return res.render('auth/register', {
-            title: 'Register for sharing your idea',
-            userInput,
-            errMsg: errors.array()[0].msg,
-        });
+        return res.status(400).send({ success: false, message: errors.array()[0].msg })
     }
     next();
 };
+
+
+module.exports = {
+    registerValidator,
+    registerValidationResult
+}
