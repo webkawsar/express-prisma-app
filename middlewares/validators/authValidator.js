@@ -102,9 +102,46 @@ const forgetValidationResult = async (req, res, next) => {
 };
 
 
+// reset password validators
+const resetValidator = [
+    check('password')
+        .trim()
+        .notEmpty()
+        .withMessage('Password is required')
+        .isLength({ min: 6 })
+        .withMessage('Password must be less than 6 char')
+        .not()
+        .isIn(['abc123', 'password', 'iloveyou'])
+        .withMessage("Password can't set common word or text"),
+
+    check('confirmPassword')
+        .notEmpty()
+        .withMessage('Confirm password is required')
+        .trim()
+        .custom((confirmPassword, { req }) => {
+            if (confirmPassword === req.body.password) {
+                return true;
+            }
+            throw new Error("Password doesn't match");
+        }),
+];
+
+
+const resetValidationResult = async (req, res, next) => {
+    const errors = validationResult(req);
+    const { token } = req.body;
+    if (!errors.isEmpty()) {
+        return res.status(400).send({ success: false, message: errors.array()[0].msg })
+    }
+    next();
+};
+
+
 module.exports = {
     registerValidator,
     registerValidationResult,
     forgetValidator,
-    forgetValidationResult
+    forgetValidationResult,
+    resetValidator,
+    resetValidationResult
 }

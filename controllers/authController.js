@@ -2,7 +2,11 @@ const _ = require("lodash");
 const jwt = require("jsonwebtoken");
 const prisma = require("../lib/prisma");
 const bcryptjs = require("bcryptjs");
-const { transporter, registerData, forgetData } = require("../config/mailConfig");
+const {
+  transporter,
+  registerData,
+  forgetData,
+} = require("../config/mailConfig");
 const generateAuthToken = require("../helpers/generateAuthToken");
 
 module.exports.register = async (req, res) => {
@@ -159,12 +163,82 @@ exports.forgetPassword = async (req, res) => {
       success: true,
       message:
         "Reset password link was sent to your email.Please follow the instructions",
+      token
     });
-    
   } catch (error) {
     res.status(500).send({
       success: false,
       message: "Internal Server Error",
     });
   }
+};
+
+exports.resetVerify = (req, res) => {
+  const { token } = req.params;
+  jwt.verify(token, process.env.FORGET_SECRET, async (error, decoded) => {
+    if (error) {
+      return res.status(400).send({
+        success: false,
+        message: "Password reset failed. Please try again",
+      });
+    }
+
+    const user = await prisma.user.findUnique({
+      where: {
+        email: decoded.email,
+      },
+    });
+
+    if (!user) {
+      return res.status(400).send({
+        success: false,
+        message: "Password reset failed. Please try again",
+      });
+    }
+
+    res.send({ success: true, message: "Password reset verification success" });
+  });
+};
+
+exports.reset = (req, res) => {
+  jwt.verify(
+    req.body.token,
+    process.env.FORGET_SECRET,
+    async (error, decoded) => {
+      if (error) {
+        return res.status(400).send({
+          success: false,
+          message: "Password reset failed. Please try again",
+        });
+      }
+
+      const user = await prisma.user.findUnique({
+        where: {
+          email: decoded.email,
+        },
+      });
+
+      if (!user) {
+        return res.status(400).send({
+          success: false,
+          message: "Password reset failed. Please try again",
+        });
+      }
+
+      await prisma.user.update({
+        data: {
+          isToken: null,
+          password: req.body.password,
+        },
+        where: {
+          email: decoded.email,
+        },
+      });
+
+      res.send({
+        success: true,
+        message: "Reset password successfully. Please login",
+      });
+    }
+  );
 };
