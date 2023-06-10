@@ -1,9 +1,10 @@
 const express = require('express');
-const usersRouter = require("./routes/usersRoute");
 const app = express();
 const dotenv = require('dotenv')
 
 
+const authRouter = require("./routes/authRoute");
+const usersRouter = require("./routes/usersRoute");
 
 // for env file configuration
 dotenv.config();
@@ -12,7 +13,8 @@ dotenv.config();
 app.use(express.json());
 
 // api routes
-app.use('/', usersRouter);
+app.use('/auth', authRouter);
+// app.use('/users', usersRouter);
 app.use("*", (req, res) => {
     res.send({ success: false, message: "Not Found" });
 })
