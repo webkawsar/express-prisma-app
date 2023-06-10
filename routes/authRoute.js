@@ -4,8 +4,7 @@ const { registerValidator, registerValidationResult } = require('../middlewares/
 
 const router = express.Router();
 router.post("/register", [registerValidator, registerValidationResult], authController.register);
-// account activation
 router.get('/activate/:token', authController.activate);
-
+router.post('/login', authController.login);
 
 module.exports = router;
