@@ -47,7 +47,9 @@ module.exports.register = async (req, res) => {
       success: true,
       message: "Please check your email and activate account",
     });
+
   } catch (error) {
+
     res.status(500).send({
       success: false,
       message: "Internal Server Error",
@@ -132,7 +134,7 @@ module.exports.login = async (req, res) => {
 
     //generate auth token
     const token = await generateAuthToken(user);
-    res.send({ success: true, message: "Login successful!", token });
+    res.send({ success: true, token });
 
   } catch (error) {
     res.status(500).send({

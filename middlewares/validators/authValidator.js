@@ -92,7 +92,6 @@ const forgetValidator = [
     }),
 ];
 
-// eslint-disable-next-line consistent-return
 const forgetValidationResult = async (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
@@ -125,7 +124,6 @@ const resetValidator = [
             throw new Error("Password doesn't match");
         }),
 ];
-
 
 const resetValidationResult = async (req, res, next) => {
     const errors = validationResult(req);

@@ -14,7 +14,7 @@ app.use(express.json());
 
 // api routes
 app.use('/auth', authRouter);
-// app.use('/users', usersRouter);
+app.use('/api/v1', usersRouter);
 app.use("*", (req, res) => {
     res.send({ success: false, message: "Not Found" });
 })
