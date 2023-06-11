@@ -18,7 +18,7 @@ model User {
   password   String
   role       Role    @default(User)
   isVerified Boolean @default(false)
-  isToken    String?
+  resetToken String?
 }
 
 enum Role {
