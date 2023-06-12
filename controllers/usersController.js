@@ -82,6 +82,15 @@ module.exports.update = async (req, res) => {
             return res.status(404).send({ success: false, message: "User doesn't exists" });
         }
 
+        // checking permission
+        if(req.user?.role === "User" && req.user?.id !== user.id) {
+            return res.status(403).send({ success: false, message: "You are not allowed to perform the action" });
+        }
+
+        if(req.user?.role === "Support" && (user.role === "Admin" || req.user?.id !== user.id)) {
+            return res.status(403).send({ success: false, message: "You are not allowed to perform the action" });
+        }
+
         // update user
         const updatedUser = await prisma.user.update({
             where: {
@@ -129,7 +138,7 @@ module.exports.delete = async (req, res) => {
             return res.status(403).send({ success: false, message: "You are not allowed to perform the action" });
         }
 
-        if(req.user?.role === "Support" && user.role === "Admin") {
+        if(req.user?.role === "Support" && (user.role === "Admin" || req.user?.id !== user.id)) {
             return res.status(403).send({ success: false, message: "You are not allowed to perform the action" });
         }
 
@@ -143,7 +152,7 @@ module.exports.delete = async (req, res) => {
         res.send({ success: true, user: deletedUser })
         
     } catch (error) {
-        console.log(error, 'error')
+        
         res.status(500).send({ success: false, message: "Internal Server Error" });
     }
 }

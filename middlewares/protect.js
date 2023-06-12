@@ -26,6 +26,11 @@ const protect = async (req, res, next) => {
                     isVerified: true
                 }
             });
+
+            if(!user) {
+                return res.status(401).send({ success: false, message: "Please login to perform the action" });
+            }
+
             req.user = user;
             next();
             
