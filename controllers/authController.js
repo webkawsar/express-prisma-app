@@ -111,7 +111,7 @@ module.exports.login = async (req, res) => {
     const user = await prisma.user.findUnique({
       where: {
         email: pickedData.email,
-      },
+      }
     });
 
     if (!user) {
@@ -140,6 +140,11 @@ module.exports.login = async (req, res) => {
 
     //generate auth token
     const token = await generateAuthToken(user);
+
+    // delete unnecessary field from user
+    delete user.password
+    delete user.resetToken
+
     res.send({ success: true, token, user });
 
   } catch (error) {

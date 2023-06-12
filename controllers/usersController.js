@@ -25,7 +25,7 @@ module.exports.getAll = async (req, res) => {
                 isVerified: true
             },
             orderBy: {
-                id: 'asc'
+                id: 'desc'
             }
         });
         res.send({ success: true, users })
