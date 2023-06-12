@@ -1,7 +1,7 @@
 const express = require('express');
 const app = express();
 const dotenv = require('dotenv')
-
+const cors = require("cors");
 
 const authRouter = require("./routes/authRoute");
 const usersRouter = require("./routes/usersRoute");
@@ -11,12 +11,13 @@ dotenv.config();
 
 // middlewares
 app.use(express.json());
+app.use(cors());
 
 // api routes
 app.use('/auth', authRouter);
 app.use('/api/v1', usersRouter);
 app.use("*", (req, res) => {
-    res.send({ success: false, message: "Not Found" });
+    res.status(404).send({ success: false, message: "Api Route Not Found" });
 })
 
 // listener

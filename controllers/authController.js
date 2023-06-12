@@ -120,6 +120,12 @@ module.exports.login = async (req, res) => {
         .send({ success: false, message: "Invalid email or password" });
     }
 
+    if(!user.isVerified) {
+      return res
+        .status(400)
+        .send({ success: false, message: "Account is not activated" });
+    }
+
     // compare password
     const isMatched = await bcryptjs.compare(
       pickedData.password,
@@ -134,7 +140,7 @@ module.exports.login = async (req, res) => {
 
     //generate auth token
     const token = await generateAuthToken(user);
-    res.send({ success: true, token });
+    res.send({ success: true, token, user });
 
   } catch (error) {
     res.status(500).send({

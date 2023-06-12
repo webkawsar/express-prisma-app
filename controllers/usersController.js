@@ -23,6 +23,9 @@ module.exports.getAll = async (req, res) => {
                 email: true,
                 role: true,
                 isVerified: true
+            },
+            orderBy: {
+                id: 'asc'
             }
         });
         res.send({ success: true, users })
@@ -121,7 +124,16 @@ module.exports.delete = async (req, res) => {
             return res.status(404).send({ success: false, message: "User doesn't exists" });
         }
 
-        // update user
+        // checking permission
+        if(req.user?.role === "User" && req.user?.id !== user.id) {
+            return res.status(403).send({ success: false, message: "You are not allowed to perform the action" });
+        }
+
+        if(req.user?.role === "Support" && user.role === "Admin") {
+            return res.status(403).send({ success: false, message: "You are not allowed to perform the action" });
+        }
+
+        // delete user
         const deletedUser = await prisma.user.delete({
             where: {
                 id: Number(userId)
@@ -131,7 +143,7 @@ module.exports.delete = async (req, res) => {
         res.send({ success: true, user: deletedUser })
         
     } catch (error) {
-        
+        console.log(error, 'error')
         res.status(500).send({ success: false, message: "Internal Server Error" });
     }
 }
