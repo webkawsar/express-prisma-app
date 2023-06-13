@@ -15,20 +15,30 @@ const generateAuthToken = require("../helpers/generateAuthToken");
 module.exports.create = async (req, res) => {
   try {
 
+    // checking permissions
+    if(!(req.user.role === "Admin" || req.user.role === "Support")) {
+      return res.status(403).send({ success: false, message: "You are not allowed to perform the action" });
+    }
+
     // picked  necessary data
-    const pickedValue = _.pick(req.body, [
+    const pickedData = _.pick(req.body, [
       "firstName",
       "lastName",
       "email",
       "role"
     ]);
 
+    // Support can create only User
+    if(req.user.role === "Support") {
+      pickedData.role = "User";
+    }
+
     // password bcrypt and user create
     const password = crypto.randomBytes(5).toString('hex');
     const hashedPassword = await bcryptjs.hash(password, 12);
     const user = await prisma.user.create({
       data: {
-        ...pickedValue,
+        ...pickedData,
         password: hashedPassword,
       },
     });
