@@ -6,15 +6,15 @@ const registerValidator = [
         .notEmpty()
         .withMessage('First name is required')
         .trim()
-        .isLength({ max: 10, min: 2 })
-        .withMessage('First name must be between 2 to 10 char'),
+        .isLength({ max: 20, min: 2 })
+        .withMessage('First name must be between 2 to 20 char'),
 
     check('lastName')
         .notEmpty()
         .withMessage('Last name is required')
         .trim()
-        .isLength({ max: 10, min: 2 })
-        .withMessage('Last name must be between 2 to 10 char'),
+        .isLength({ max: 20, min: 2 })
+        .withMessage('Last name must be between 2 to 20 char'),
 
     check('email')
         .notEmpty()

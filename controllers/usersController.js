@@ -1,5 +1,65 @@
 const prisma = require("../lib/prisma");
+const jwt = require("jsonwebtoken");
+const bcryptjs = require("bcryptjs");
 const _ = require("lodash");
+const crypto = require("crypto");
+const {
+  transporter,
+  registerData,
+  forgetData,
+  userEmailData,
+} = require("../config/mailConfig");
+const generateAuthToken = require("../helpers/generateAuthToken");
+
+
+module.exports.create = async (req, res) => {
+  try {
+
+    // picked  necessary data
+    const pickedValue = _.pick(req.body, [
+      "firstName",
+      "lastName",
+      "email",
+      "role"
+    ]);
+
+    // password bcrypt and user create
+    const password = crypto.randomBytes(5).toString('hex');
+    const hashedPassword = await bcryptjs.hash(password, 12);
+    const user = await prisma.user.create({
+      data: {
+        ...pickedValue,
+        password: hashedPassword,
+      },
+    });
+
+    // generate token
+    const token = await jwt.sign(
+      {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        isVerified: false,
+      },
+      process.env.ACCOUNT_ACTIVATION_SECRET,
+      { expiresIn: process.env.REGISTER_JWT_EXPIRED_TIME }
+    );
+
+    // send email
+    await transporter.sendMail(userEmailData(user.email, token, password));
+    res.status(201).send({
+      success: true,
+      message: "Please check your email and activate account",
+    });
+
+  } catch (error) {
+    
+    res.status(500).send({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};
 
 module.exports.getAll = async (req, res) => {
   try {

@@ -4,12 +4,13 @@ const usersController = require("../controllers/usersController");
 const { registerValidator, registerValidationResult } = require('../middlewares/validators/authValidator');
 const isAdmin = require('../middlewares/isAdmin');
 const protect = require('../middlewares/protect');
+const { createUserValidator, createUserValidationResult } = require('../middlewares/validators/userValidator');
 
 
 const router = express.Router();
 router.get("/users/:userId", protect, usersController.getSingle);
 router.get("/users", protect, usersController.getAll);
-router.post("/users", protect, [registerValidator, registerValidationResult], authController.register);
+router.post("/users", protect, [createUserValidator, createUserValidationResult], usersController.create);
 
 router.patch("/users/:userId", protect, usersController.update);
 router.delete("/users/:userId", protect, usersController.delete);
