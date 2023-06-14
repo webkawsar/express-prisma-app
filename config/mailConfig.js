@@ -10,8 +10,8 @@ let transporter = nodemailer.createTransport({
 });
 
 const isDevelopment = process.env.NODE_ENV === 'development';
-const HOST_ADDRESS = isDevelopment ? process.env.HOST_ADDRESS || process.env.RAILWAY_URL;
-console.log(HOST_ADDRESS, 'HOST_ADDRESS')
+const HOST_ADDRESS = isDevelopment ? process.env.HOST_ADDRESS : process.env.RAILWAY_URL
+
 
 const registerData = (to, token) => ({
     from: process.env.SMTP_USERNAME,
