@@ -23,5 +23,5 @@ app.use("*", (req, res) => {
 // listener
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`Port is listening on @ http://localhost:${PORT}`)
+    console.log(`Port is listening on @${PORT}`)
 })
