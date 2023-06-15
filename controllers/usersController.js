@@ -41,6 +41,14 @@ module.exports.create = async (req, res) => {
         ...pickedData,
         password: hashedPassword,
       },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        isVerified: true,
+      }
     });
 
     // generate token
@@ -60,6 +68,7 @@ module.exports.create = async (req, res) => {
     res.status(201).send({
       success: true,
       message: "Please check your email and activate account",
+      user
     });
 
   } catch (error) {
