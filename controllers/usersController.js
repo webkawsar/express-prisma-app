@@ -254,6 +254,14 @@ module.exports.delete = async (req, res) => {
       where: {
         id: Number(userId),
       },
+      select: {
+        id: true,
+        firstName: true,
+        lastName: true,
+        email: true,
+        role: true,
+        isVerified: true,
+      }
     });
 
     res.send({ success: true, user: deletedUser });
