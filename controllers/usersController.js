@@ -126,6 +126,11 @@ module.exports.getSingle = async (req, res) => {
         isVerified: true,
       },
     });
+
+    if(!user) {
+      return res.status(404).send({ success: false, message: 'User not found' });
+    }
+
     res.send({ success: true, user });
   } catch (error) {
     res.status(500).send({ success: false, message: "Internal Server Error" });
