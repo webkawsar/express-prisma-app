@@ -1,18 +1,37 @@
-const express = require('express');
+const express = require("express");
 const authController = require("../controllers/authController");
 const usersController = require("../controllers/usersController");
-const { registerValidator, registerValidationResult } = require('../middlewares/validators/authValidator');
-const isAdmin = require('../middlewares/isAdmin');
-const protect = require('../middlewares/protect');
-const { createUserValidator, createUserValidationResult } = require('../middlewares/validators/userValidator');
+const {
+  registerValidator,
+  registerValidationResult,
+} = require("../middlewares/validators/authValidator");
+const isAdmin = require("../middlewares/isAdmin");
+const protect = require("../middlewares/protect");
+const {
+  createUserValidator,
+  createUserValidationResult,
+  updateUserValidator,
+  updateUserValidationResult,
+} = require("../middlewares/validators/userValidator");
+
 
 
 const router = express.Router();
 router.get("/users/:userId", protect, usersController.getSingle);
 router.get("/users", protect, usersController.getAll);
-router.post("/users", protect, [createUserValidator, createUserValidationResult], usersController.create);
+router.post(
+  "/users",
+  protect,
+  [createUserValidator, createUserValidationResult],
+  usersController.create
+);
 
-router.patch("/users/:userId", protect, usersController.update);
+router.patch(
+  "/users/:userId",
+  protect,
+  [updateUserValidator, updateUserValidationResult],
+  usersController.update
+);
 router.delete("/users/:userId", protect, usersController.delete);
 
 
