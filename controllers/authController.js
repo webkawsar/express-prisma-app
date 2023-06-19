@@ -101,7 +101,7 @@ exports.activate = async (req, res) => {
   );
 };
 
-module.exports.login = async (req, res) => {
+module.exports.login = async (req, res, next) => {
   try {
 
     // picked necessary data
@@ -141,17 +141,27 @@ module.exports.login = async (req, res) => {
     //generate auth token
     const token = await generateAuthToken(user);
 
+
     // delete unnecessary field from user
     delete user.password
     delete user.resetToken
 
-    res.send({ success: true, token, user });
+    // res.send({ success: true, user, token });
+    req.session.isLoggedIn = true;
+    req.session.user = user;
+
+    // res.cookie('auth', token, {
+    //    maxAge: 2 * 60 * 100 * 1000,
+    //    sameSite: "none",
+    //    httpOnly: true,
+    //    signed: true,
+    //    secure: true
+    // })
+
+    res.send({ success: true, user })
 
   } catch (error) {
-    res.status(500).send({
-      success: false,
-      message: "Internal Server Error",
-    });
+    next(error);
   }
 };
 

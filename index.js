@@ -2,16 +2,56 @@ const express = require('express');
 const app = express();
 const dotenv = require('dotenv')
 const cors = require("cors");
-
+const session = require('express-session')
 const authRouter = require("./routes/authRoute");
 const usersRouter = require("./routes/usersRoute");
+const cookieParser = require('cookie-parser');
+
 
 // for env file configuration
 dotenv.config();
 
 // middlewares
+
+
+app.use(cors({
+    origin: 'https://user-management-simple.netlify.app',
+    credentials: true,
+}));
+
+
+
+// app.use(cookieParser("SecretKey"));
+
+// app.use((req, res, next) => {
+//     console.log(req.signedCookies['auth'], 'signedCookies')
+//     next();
+// })
+
+
+
+// app.use(cookieParser("SecretKey"));
+app.use(session({
+    secret: "SecretKey",
+    resave: false,
+    saveUninitialized: false,
+    cookie: {
+        maxAge: 2 * 60 * 100 * 1000,
+        sameSite: "none",
+        signed: true,
+        secure: true
+    }
+}))
+
+app.use((req, res, next) => {
+
+    console.log(req.session.isLoggedIn, 'isLoggedIn')
+    console.log(req.session.user, 'user')
+    next();
+})
+
 app.use(express.json());
-app.use(cors());
+
 
 // api routes
 
@@ -22,6 +62,15 @@ app.use('/', (req, res) => {
 })
 app.use("*", (req, res) => {
     res.status(404).send({ success: false, message: "Api Route Not Found" });
+})
+
+app.use((error, req, res, next) => {
+    console.log(error, 'error');
+
+    res.status(500).send({
+        success: false,
+        message: "Internal Server Error",
+    });
 })
 
 // listener
