@@ -5,7 +5,7 @@ const { registerValidator, registerValidationResult, forgetValidator, forgetVali
 
 const router = express.Router();
 router.post("/register", [registerValidator, registerValidationResult], authController.register);
-router.get('/activate/:token', authController.activate);
+router.get('/verify/:token', authController.verify);
 router.post('/login', authController.login);
 router.post('/forget-password', [forgetValidator, forgetValidationResult], authController.forgetPassword);
 router.get('/reset-password/:token', authController.resetVerify);

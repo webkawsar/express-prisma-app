@@ -4,12 +4,12 @@ const prisma = require("../lib/prisma");
 const bcryptjs = require("bcryptjs");
 const {
   transporter,
-  registerData,
   forgetData,
+  register,
 } = require("../config/mailConfig");
 const generateAuthToken = require("../helpers/generateAuthToken");
 
-module.exports.register = async (req, res) => {
+module.exports.register = async (req, res, next) => {
   try {
 
     // picked  necessary data
@@ -29,7 +29,7 @@ module.exports.register = async (req, res) => {
       },
     });
 
-    // generate token
+    // generate token for 1440 minute or 1 day
     const token = await jwt.sign(
       {
         firstName: user.firstName,
@@ -37,65 +37,63 @@ module.exports.register = async (req, res) => {
         email: user.email,
         isVerified: false,
       },
-      process.env.ACCOUNT_ACTIVATION_SECRET,
-      { expiresIn: process.env.REGISTER_JWT_EXPIRED_TIME }
+      process.env.ACCOUNT_VERIFICATION_SECRET,
+      { expiresIn: process.env.ACCOUNT_VERIFICATION_EXPIRED_TIME }
     );
 
     // send email
-    await transporter.sendMail(registerData(user.email, token));
+    await transporter.sendMail(register(user.email, token));
     res.status(201).send({
       success: true,
-      message: "Please check your email and activate account",
+      message: "Please verify the account with your email",
     });
 
   } catch (error) {
-
-    res.status(500).send({
-      success: false,
-      message: "Internal Server Error",
-    });
+    next(error);
   }
 };
 
-exports.activate = async (req, res) => {
+exports.verify = async (req, res) => {
   const { token } = req.params;
   jwt.verify(
     token,
-    process.env.ACCOUNT_ACTIVATION_SECRET,
+    process.env.ACCOUNT_VERIFICATION_SECRET,
     async (error, decoded) => {
 
       if (error) {
+
         return res.status(400).send({
           success: false,
-          message: "Account activation failed.Please try again",
+          message: "Account verification failed. Please try again",
         });
       }
 
       const user = await prisma.user.findUnique({
         where: {
-          email: decoded.email,
-        },
+          email: decoded?.email,
+        }
       });
 
       if (!user.isVerified) {
+
         await prisma.user.update({
           data: {
             isVerified: true,
           },
           where: {
-            email: decoded.email,
+            email: decoded?.email,
           },
         });
 
         return res.send({
           success: true,
-          message: "Account activate successfully.Please login",
+          message: "Account verification successful. Please login",
         });
       }
 
       res.send({
         success: true,
-        message: "Account already activated.Please login",
+        message: "Account already verified. Please login",
       });
     }
   );
@@ -149,15 +147,6 @@ module.exports.login = async (req, res, next) => {
     // res.send({ success: true, user, token });
     req.session.isLoggedIn = true;
     req.session.user = user;
-
-    // res.cookie('auth', token, {
-    //    maxAge: 2 * 60 * 100 * 1000,
-    //    sameSite: "none",
-    //    httpOnly: true,
-    //    signed: true,
-    //    secure: true
-    // })
-
     res.send({ success: true, user })
 
   } catch (error) {

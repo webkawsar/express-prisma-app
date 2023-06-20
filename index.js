@@ -5,40 +5,38 @@ const cors = require("cors");
 const session = require('express-session')
 const authRouter = require("./routes/authRoute");
 const usersRouter = require("./routes/usersRoute");
-const cookieParser = require('cookie-parser');
 
 
 // for env file configuration
 dotenv.config();
 
+
+// set view engine
+app.set("view engine", "ejs");
+
 // middlewares
-
-
+app.use(express.json());
+app.use(express.urlencoded({ extended: false }));
 app.use(cors({
-    origin: 'http://127.0.0.1:5173',
+    origin: 'http://localhost:5173',
     credentials: true,
 }));
 
 
+// session store in database
+const store = new (require('connect-pg-simple')(session))({
+    createTableIfMissing: true
+})
 
-// app.use(cookieParser("SecretKey"));
-// app.use((req, res, next) => {
-//     console.log(req.signedCookies['auth'], 'signedCookies')
-//     next();
-// })
-
-
-
-// app.use(cookieParser("SecretKey"));
 app.use(session({
-    secret: "SecretKey",
+    secret: process.env.SESSION_SECRET,
+    store,
     resave: false,
     saveUninitialized: false,
     cookie: {
         maxAge: 2 * 60 * 100 * 1000,
-        sameSite: "none",
-        signed: true,
-        secure: true
+        sameSite: "lax",
+        httpOnly: true,
     }
 }))
 
@@ -49,21 +47,19 @@ app.use((req, res, next) => {
     next();
 })
 
-app.use(express.json());
-
 
 // api routes
-
 app.use('/auth', authRouter);
 app.use('/api/v1', usersRouter);
 app.use('/', (req, res) => {
-    res.send({ success: true, message: "Welcome to homepage" });
+    res.send({ success: true, message: 'Welcome to Express Prisma App' });
 })
 app.use("*", (req, res) => {
     res.status(404).send({ success: false, message: "Api Route Not Found" });
 })
 
 app.use((error, req, res, next) => {
+
     console.log(error, 'error');
 
     res.status(500).send({
@@ -75,5 +71,5 @@ app.use((error, req, res, next) => {
 // listener
 const PORT = process.env.PORT || 8080;
 app.listen(PORT, () => {
-    console.log(`Port is listening on @ ${PORT}`)
+    console.log(`Port is listening on ${PORT}`)
 })
