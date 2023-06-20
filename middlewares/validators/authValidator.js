@@ -67,6 +67,25 @@ const registerValidationResult = (req, res, next) => {
     next();
 };
 
+// login validator
+const loginValidator = [
+    check('email')
+        .notEmpty()
+        .withMessage('Email is required')
+        .isEmail()
+        .withMessage('Please add valid email')
+        .trim(),
+    check('password').notEmpty().withMessage('Password is required').trim(),
+];
+
+const loginValidationResult = (req, res, next) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+        return res.status(400).send({ success: false, message: errors.array()[0].msg })
+    }
+    next();
+};
+
 
 // forget password validators
 const forgetValidator = [
@@ -138,6 +157,8 @@ const resetValidationResult = async (req, res, next) => {
 module.exports = {
     registerValidator,
     registerValidationResult,
+    loginValidator,
+    loginValidationResult,
     forgetValidator,
     forgetValidationResult,
     resetValidator,

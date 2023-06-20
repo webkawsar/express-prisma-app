@@ -102,13 +102,15 @@ exports.verify = async (req, res) => {
 module.exports.login = async (req, res, next) => {
   try {
 
+    console.log(req.user, 'req.user')
+
     // picked necessary data
     const pickedData = _.pick(req.body, ["email", "password"]);
 
     // checking user exist or not
     const user = await prisma.user.findUnique({
       where: {
-        email: pickedData.email,
+        email: pickedData?.email,
       }
     });
 
@@ -136,15 +138,11 @@ module.exports.login = async (req, res, next) => {
         .send({ success: false, message: "Invalid email or password" });
     }
 
-    //generate auth token
-    const token = await generateAuthToken(user);
-
-
     // delete unnecessary field from user
     delete user.password
     delete user.resetToken
 
-    // res.send({ success: true, user, token });
+    // send res with session cookie
     req.session.isLoggedIn = true;
     req.session.user = user;
     res.send({ success: true, user })

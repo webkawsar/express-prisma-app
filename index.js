@@ -5,7 +5,8 @@ const cors = require("cors");
 const session = require('express-session')
 const authRouter = require("./routes/authRoute");
 const usersRouter = require("./routes/usersRoute");
-
+const passport = require('passport');
+const { localStrategy } = require('./config/passport');
 
 // for env file configuration
 dotenv.config();
@@ -43,10 +44,14 @@ app.use(session({
 app.use((req, res, next) => {
 
     console.log(req.session.isLoggedIn, 'isLoggedIn')
-    console.log(req.session.user, 'user')
+    // console.log(req.session.user, 'user')
     next();
 })
 
+app.use(passport.initialize());
+app.use(passport.session());
+localStrategy(passport);
+// googleStrategy(passport);
 
 // api routes
 app.use('/auth', authRouter);

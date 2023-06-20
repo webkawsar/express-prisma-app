@@ -1,4 +1,5 @@
 const nodemailer = require("nodemailer");
+const URL = require("./URL");
 let transporter = nodemailer.createTransport({
     host: process.env.SMTP_HOST,
     port: process.env.SMTP_PORT,
@@ -9,9 +10,6 @@ let transporter = nodemailer.createTransport({
     },
 });
 
-const isDevelopment = process.env.NODE_ENV === 'development';
-const HOST_ADDRESS = isDevelopment ? process.env.DEVELOPMENT_HOST_URL : process.env.PRODUCTION_HOST_URL
-
 
 const register = (to, token) => {
 
@@ -19,8 +17,8 @@ const register = (to, token) => {
         from: process.env.SMTP_USERNAME,
         to,
         subject: 'Welcome to Express Prisma App',
-        text: `Welcome from Express Prisma App.Please click the link to verify your account <a href="${HOST_ADDRESS}/account/verify?token=${token}">Verify account</a>`,
-        html: `<h3>Welcome from Express Prisma App</h3><p>Please click the link to verify your account <a href="${HOST_ADDRESS}/account/verify?token=${token}">Verify account</a></p>`,
+        text: `Welcome from Express Prisma App.Please click the link to verify your account <a href="${URL}/account/verify?token=${token}">Verify account</a>`,
+        html: `<h3>Welcome from Express Prisma App</h3><p>Please click the link to verify your account <a href="${URL}/account/verify?token=${token}">Verify account</a></p>`,
     }
 };
 
@@ -28,16 +26,16 @@ const forgetData = (to, token) => ({
     from: process.env.SMTP_USERNAME,
     to,
     subject: 'Reset Password',
-    text: `You requested to reset password.Please click the link to reset password <a href="${HOST_ADDRESS}/auth/reset-password/${token}">Reset Password</a>`,
-    html: `<p>You requested to reset password.Please click the link to reset password <a href="${HOST_ADDRESS}/auth/reset-password/${token}">Reset Password</a></p>`,
+    text: `You requested to reset password.Please click the link to reset password <a href="${URL}/auth/reset-password/${token}">Reset Password</a>`,
+    html: `<p>You requested to reset password.Please click the link to reset password <a href="${URL}/auth/reset-password/${token}">Reset Password</a></p>`,
 });
 
 const userEmailData = (to, token, password) => ({
     from: process.env.SMTP_USERNAME,
     to,
     subject: 'Welcome to Express Prisma App',
-    text: `Welcome from Express Prisma App. Please click the link to activate your account <a href="${HOST_ADDRESS}/auth/verify/${token}">Activate account</a>`,
-    html: `<h3>Welcome from Express Prisma App</h3><p>Share your idea to the outer world</p><p>Please click the link to activate your account <a href="${HOST_ADDRESS}/auth/verify/${token}">Verify account</a></p> <h3>Your password is: <b>${password}</b></h3>`,
+    text: `Welcome from Express Prisma App. Please click the link to activate your account <a href="${URL}/auth/verify/${token}">Activate account</a>`,
+    html: `<h3>Welcome from Express Prisma App</h3><p>Share your idea to the outer world</p><p>Please click the link to activate your account <a href="${URL}/auth/verify/${token}">Verify account</a></p> <h3>Your password is: <b>${password}</b></h3>`,
 });
 
 module.exports = {
