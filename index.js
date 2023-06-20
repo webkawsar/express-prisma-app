@@ -15,14 +15,13 @@ dotenv.config();
 
 
 app.use(cors({
-    origin: 'https://user-management-simple.netlify.app',
+    origin: 'http://127.0.0.1:5173',
     credentials: true,
 }));
 
 
 
 // app.use(cookieParser("SecretKey"));
-
 // app.use((req, res, next) => {
 //     console.log(req.signedCookies['auth'], 'signedCookies')
 //     next();
