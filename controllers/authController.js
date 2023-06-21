@@ -100,6 +100,10 @@ module.exports.login = async (req, res, next) => {
   res.send({ success: true, user });
 };
 
+module.exports.loginFailed = (req, res, next) => {
+  res.status(400).send({ success: false, message: "Login Failed!" });
+}
+
 exports.logout = async (req, res, next) => {
 
   req.logout((error) => {

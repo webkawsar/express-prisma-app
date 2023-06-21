@@ -57,7 +57,7 @@ const localStrategy = (passport) => {
     try {
         const foundUser = await prisma.user.findUnique({
             where: {
-                email: user?.email
+                id: user?.id
             }
         })
         next(null, foundUser);
