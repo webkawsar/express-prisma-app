@@ -141,6 +141,7 @@ module.exports.update = async (req, res, next) => {
     const pickedData = _.pick(req.body, [
       "firstName",
       "lastName",
+      "email",
       "role",
     ]);
 

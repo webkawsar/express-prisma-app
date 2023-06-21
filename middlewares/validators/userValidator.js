@@ -61,26 +61,29 @@ const updateUserValidator = [
         .isLength({ max: 20, min: 2 })
         .withMessage('Last name must be between 2 to 20 char'),
 
-    // check('email')
-    //     .notEmpty()
-    //     .withMessage('Email is required')
-    //     .isEmail()
-    //     .withMessage('Please add valid email')
-    //     .trim(),
+    check('email')
+        .notEmpty()
+        .withMessage('Email is required')
+        .isEmail()
+        .withMessage('Please add valid email')
+        .trim(),
     // .normalizeEmail()
 
-    // check('email').custom(async (email) => {
-    //     const user = await prisma.user.findUnique({
-    //         where: {
-    //             email
-    //         }
-    //     })
-    //     if (user) {
-    //         throw new Error('Email is already registered!');
-    //     } else {
-    //         return true;
-    //     }
-    // })
+    check('email').custom(async (email, { req }) => {
+        const user = await prisma.user.findUnique({
+            where: {
+                email
+            }
+        })
+
+        if(req.user?.email === email) {
+            return true;
+        } else if(!user) {
+            return true;
+        } else {
+            throw new Error("Email already associated with another user's email");
+        }
+    })
 ];
 
 const updateUserValidationResult = (req, res, next) => {
