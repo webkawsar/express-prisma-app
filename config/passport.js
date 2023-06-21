@@ -48,7 +48,9 @@ const localStrategy = (passport) => {
   );
 
   passport.serializeUser((user, next) => {
-    next(null, user);
+    process.nextTick(() => {
+      next(null, user);
+    });
   });
 
   passport.deserializeUser(async (user, next) => {

@@ -2,16 +2,11 @@ const _ = require("lodash");
 const jwt = require("jsonwebtoken");
 const prisma = require("../lib/prisma");
 const bcryptjs = require("bcryptjs");
-const {
-  transporter,
-  forgetData,
-  register,
-} = require("../config/mailConfig");
+const { transporter, forgetData, register } = require("../config/mailConfig");
 const generateAuthToken = require("../helpers/generateAuthToken");
 
 module.exports.register = async (req, res, next) => {
   try {
-
     // picked  necessary data
     const pickedValue = _.pick(req.body, [
       "firstName",
@@ -47,7 +42,6 @@ module.exports.register = async (req, res, next) => {
       success: true,
       message: "Please verify the account with your email",
     });
-
   } catch (error) {
     next(error);
   }
@@ -59,9 +53,7 @@ exports.verify = async (req, res) => {
     token,
     process.env.ACCOUNT_VERIFICATION_SECRET,
     async (error, decoded) => {
-
       if (error) {
-
         return res.status(400).send({
           success: false,
           message: "Account verification failed. Please try again",
@@ -71,11 +63,10 @@ exports.verify = async (req, res) => {
       const user = await prisma.user.findUnique({
         where: {
           email: decoded?.email,
-        }
+        },
       });
 
       if (!user.isVerified) {
-
         await prisma.user.update({
           data: {
             isVerified: true,
@@ -100,30 +91,28 @@ exports.verify = async (req, res) => {
 };
 
 module.exports.login = async (req, res, next) => {
-
   const user = { ...req.user };
 
   // delete unnecessary field from user
-  delete user.password
-  delete user.resetToken
-  
-  res.send({ success: true, user })
+  delete user.password;
+  delete user.resetToken;
+
+  res.send({ success: true, user });
 };
 
-exports.logout = async(req, res) => {
-  try {
+exports.logout = async (req, res, next) => {
+  
+  req.logout((error) => {
+    if (error) {
+      return next(error);
+    }
 
-    await req.logout();
     res.send({ success: true, message: "Logout successful" });
-    
-  } catch (error) {
-    
-  }
+  });
 };
 
 exports.forgetPassword = async (req, res) => {
   try {
-    
     // generate token
     const token = await jwt.sign(
       {
@@ -141,8 +130,8 @@ exports.forgetPassword = async (req, res) => {
         email: req?.forgetUser?.email,
       },
       data: {
-        resetToken: token
-      }
+        resetToken: token,
+      },
     });
 
     // send email
@@ -151,19 +140,17 @@ exports.forgetPassword = async (req, res) => {
       success: true,
       message:
         "Reset password link was sent to your email. Please follow the instructions",
-      token
+      token,
     });
-
   } catch (error) {
-
     // set user reset token null
     await prisma.user.update({
       where: {
         email: req?.forgetUser?.email,
       },
       data: {
-        resetToken: null
-      }
+        resetToken: null,
+      },
     });
 
     res.status(500).send({
@@ -176,7 +163,6 @@ exports.forgetPassword = async (req, res) => {
 exports.resetVerify = (req, res) => {
   const { token } = req.params;
   jwt.verify(token, process.env.FORGET_SECRET, async (error, decoded) => {
-
     if (error) {
       return res.status(400).send({
         success: false,
@@ -206,7 +192,6 @@ exports.reset = (req, res) => {
     req.body.token,
     process.env.FORGET_SECRET,
     async (error, decoded) => {
-
       if (error) {
         return res.status(400).send({
           success: false,
@@ -235,7 +220,7 @@ exports.reset = (req, res) => {
         data: {
           resetToken: null,
           password: hashedPassword,
-        }
+        },
       });
 
       res.send({

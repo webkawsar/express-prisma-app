@@ -12,6 +12,7 @@ const {
   loginValidationResult,
 } = require("../middlewares/validators/authValidator");
 const URL = require("../config/URL");
+const protect = require("../middlewares/protect");
 
 const router = express.Router();
 router.post(
@@ -28,13 +29,11 @@ router.post(
   passport.authenticate("local", {
     failureRedirect: `${URL}/auth/login`
   }),
-  (req, res) => {
-    res.send({ success: true, message: 'Logged in successfully' });
-  }
+  authController.login
 );
 
 // logout
-router.get('/logout', authController.logout);
+router.get('/logout', protect, authController.logout);
 
 router.post(
   "/forget-password",
