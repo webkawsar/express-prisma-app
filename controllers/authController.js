@@ -100,55 +100,24 @@ exports.verify = async (req, res) => {
 };
 
 module.exports.login = async (req, res, next) => {
+
+  const user = { ...req.user };
+
+  // delete unnecessary field from user
+  delete user.password
+  delete user.resetToken
+  
+  res.send({ success: true, user })
+};
+
+exports.logout = async(req, res) => {
   try {
 
-    console.log(req.user, 'req.user')
-
-    // picked necessary data
-    const pickedData = _.pick(req.body, ["email", "password"]);
-
-    // checking user exist or not
-    const user = await prisma.user.findUnique({
-      where: {
-        email: pickedData?.email,
-      }
-    });
-
-    if (!user) {
-      return res
-        .status(400)
-        .send({ success: false, message: "Invalid email or password" });
-    }
-
-    if(!user.isVerified) {
-      return res
-        .status(400)
-        .send({ success: false, message: "Account is not activated" });
-    }
-
-    // compare password
-    const isMatched = await bcryptjs.compare(
-      pickedData.password,
-      user.password
-    );
-
-    if (!isMatched) {
-      return res
-        .status(400)
-        .send({ success: false, message: "Invalid email or password" });
-    }
-
-    // delete unnecessary field from user
-    delete user.password
-    delete user.resetToken
-
-    // send res with session cookie
-    req.session.isLoggedIn = true;
-    req.session.user = user;
-    res.send({ success: true, user })
-
+    await req.logout();
+    res.send({ success: true, message: "Logout successful" });
+    
   } catch (error) {
-    next(error);
+    
   }
 };
 

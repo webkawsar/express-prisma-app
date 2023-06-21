@@ -50,11 +50,12 @@ const localStrategy = (passport) => {
   passport.serializeUser((user, next) => {
     next(null, user);
   });
+
   passport.deserializeUser(async (user, next) => {
     try {
         const foundUser = await prisma.user.findUnique({
             where: {
-                id: user?.id
+                email: user?.email
             }
         })
         next(null, foundUser);

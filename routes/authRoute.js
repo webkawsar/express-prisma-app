@@ -28,8 +28,13 @@ router.post(
   passport.authenticate("local", {
     failureRedirect: `${URL}/auth/login`
   }),
-  authController.login
+  (req, res) => {
+    res.send({ success: true, message: 'Logged in successfully' });
+  }
 );
+
+// logout
+router.get('/logout', authController.logout);
 
 router.post(
   "/forget-password",

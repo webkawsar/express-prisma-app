@@ -18,7 +18,7 @@ const {
 
 const router = express.Router();
 router.get("/users/:userId", protect, usersController.getSingle);
-router.get("/users", usersController.getAll);
+router.get("/users", protect, usersController.getAll);
 router.post(
   "/users",
   protect,

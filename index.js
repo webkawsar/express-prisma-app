@@ -8,12 +8,8 @@ const usersRouter = require("./routes/usersRoute");
 const passport = require('passport');
 const { localStrategy } = require('./config/passport');
 
-// for env file configuration
+// env file configuration
 dotenv.config();
-
-
-// set view engine
-app.set("view engine", "ejs");
 
 // middlewares
 app.use(express.json());
@@ -24,11 +20,12 @@ app.use(cors({
 }));
 
 
-// session store in database
+// session store in postgresql database
 const store = new (require('connect-pg-simple')(session))({
     createTableIfMissing: true
 })
 
+// session configuration
 app.use(session({
     secret: process.env.SESSION_SECRET,
     store,
@@ -37,21 +34,15 @@ app.use(session({
     cookie: {
         maxAge: 2 * 60 * 100 * 1000,
         sameSite: "lax",
-        httpOnly: true,
+        httpOnly: true
     }
 }))
 
-app.use((req, res, next) => {
-
-    console.log(req.session.isLoggedIn, 'isLoggedIn')
-    // console.log(req.session.user, 'user')
-    next();
-})
-
-app.use(passport.initialize());
-app.use(passport.session());
+// passport configuration
+app.use(passport.authenticate('session'));
 localStrategy(passport);
 // googleStrategy(passport);
+
 
 // api routes
 app.use('/auth', authRouter);
@@ -59,10 +50,13 @@ app.use('/api/v1', usersRouter);
 app.use('/', (req, res) => {
     res.send({ success: true, message: 'Welcome to Express Prisma App' });
 })
+
+// not found handling middleware
 app.use("*", (req, res) => {
     res.status(404).send({ success: false, message: "Api Route Not Found" });
 })
 
+// error handling middleware
 app.use((error, req, res, next) => {
 
     console.log(error, 'error');
