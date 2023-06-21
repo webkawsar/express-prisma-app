@@ -18,6 +18,7 @@ const passportLocalAuth = (req, res, next) => {
           return next(loginErr);
         }
 
+        // continue to next middleware
         next();
       });
   
