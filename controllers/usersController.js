@@ -7,12 +7,12 @@ const {
   transporter,
   registerData,
   forgetData,
-  userEmailData,
+  userEmail,
 } = require("../config/mailConfig");
 const generateAuthToken = require("../helpers/generateAuthToken");
 
 
-module.exports.create = async (req, res) => {
+module.exports.create = async (req, res, next) => {
   try {
 
     // checking permissions
@@ -59,28 +59,24 @@ module.exports.create = async (req, res) => {
         email: user.email,
         isVerified: false,
       },
-      process.env.ACCOUNT_ACTIVATION_SECRET,
-      { expiresIn: process.env.REGISTER_JWT_EXPIRED_TIME }
+      process.env.ACCOUNT_VERIFICATION_SECRET,
+      { expiresIn: process.env.ACCOUNT_VERIFICATION_EXPIRED_TIME }
     );
 
     // send email
-    await transporter.sendMail(userEmailData(user.email, token, password));
+    await transporter.sendMail(userEmail(user.email, token, password));
     res.status(201).send({
       success: true,
-      message: "Please check your email and activate account",
+      message: "Please check your email and verify account",
       user
     });
 
   } catch (error) {
-    
-    res.status(500).send({
-      success: false,
-      message: "Internal Server Error",
-    });
+    next(error);
   }
 };
 
-module.exports.getAll = async (req, res) => {
+module.exports.getAll = async (req, res, next) => {
   try {
     // cursor => mane jekoyta take korbe first e, second time e first time er last ta show abar ei koyta take korbe
     // distinct
@@ -106,11 +102,11 @@ module.exports.getAll = async (req, res) => {
     });
     res.send({ success: true, users });
   } catch (error) {
-    res.status(500).send({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };
 
-module.exports.getSingle = async (req, res) => {
+module.exports.getSingle = async (req, res, next) => {
   try {
     const { userId } = req.params;
     const user = await prisma.user.findUnique({
@@ -133,11 +129,11 @@ module.exports.getSingle = async (req, res) => {
 
     res.send({ success: true, user });
   } catch (error) {
-    res.status(500).send({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };
 
-module.exports.update = async (req, res) => {
+module.exports.update = async (req, res, next) => {
   try {
     const { userId } = req.params;
 
@@ -209,11 +205,11 @@ module.exports.update = async (req, res) => {
 
     res.send({ success: true, user: updatedUser });
   } catch (error) {
-    res.status(500).send({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };
 
-module.exports.delete = async (req, res) => {
+module.exports.delete = async (req, res, next) => {
   try {
     const { userId } = req.params;
 
@@ -270,6 +266,6 @@ module.exports.delete = async (req, res) => {
 
     res.send({ success: true, user: deletedUser });
   } catch (error) {
-    res.status(500).send({ success: false, message: "Internal Server Error" });
+    next(error);
   }
 };

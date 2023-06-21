@@ -47,7 +47,7 @@ module.exports.register = async (req, res, next) => {
   }
 };
 
-exports.verify = async (req, res) => {
+exports.verify = async (req, res, next) => {
   const { token } = req.params;
   jwt.verify(
     token,
@@ -101,7 +101,7 @@ module.exports.login = async (req, res, next) => {
 };
 
 exports.logout = async (req, res, next) => {
-  
+
   req.logout((error) => {
     if (error) {
       return next(error);
@@ -111,7 +111,9 @@ exports.logout = async (req, res, next) => {
   });
 };
 
-exports.forgetPassword = async (req, res) => {
+
+
+exports.forgetPassword = async (req, res, next) => {
   try {
     // generate token
     const token = await jwt.sign(
@@ -160,7 +162,7 @@ exports.forgetPassword = async (req, res) => {
   }
 };
 
-exports.resetVerify = (req, res) => {
+exports.resetVerify = (req, res, next) => {
   const { token } = req.params;
   jwt.verify(token, process.env.FORGET_SECRET, async (error, decoded) => {
     if (error) {
@@ -187,7 +189,7 @@ exports.resetVerify = (req, res) => {
   });
 };
 
-exports.reset = (req, res) => {
+exports.reset = (req, res, next) => {
   jwt.verify(
     req.body.token,
     process.env.FORGET_SECRET,
