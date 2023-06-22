@@ -7,6 +7,7 @@ const authRouter = require("./routes/authRoute");
 const usersRouter = require("./routes/usersRoute");
 const passport = require('passport');
 const { localStrategy } = require('./config/passport');
+const URL = require('./config/URL');
 
 // env file configuration
 dotenv.config();
@@ -15,7 +16,7 @@ dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors({
-    origin: 'http://localhost:5173',
+    origin: URL,
     credentials: true,
 }));
 
