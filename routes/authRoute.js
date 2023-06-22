@@ -11,7 +11,6 @@ const {
   loginValidator,
   loginValidationResult,
 } = require("../middlewares/validators/authValidator");
-const URL = require("../config/URL");
 const protect = require("../middlewares/protect");
 const passportLocalAuth = require("../middlewares/passportLocalAuth");
 

@@ -7,7 +7,8 @@ const authRouter = require("./routes/authRoute");
 const usersRouter = require("./routes/usersRoute");
 const passport = require('passport');
 const { localStrategy } = require('./config/passport');
-const URL = require('./config/URL');
+const { FRONT_END_URL } = require('./config/URL');
+
 
 // env file configuration
 dotenv.config();
@@ -16,7 +17,7 @@ dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors({
-    origin: URL,
+    origin: FRONT_END_URL,
     credentials: true,
 }));
 
