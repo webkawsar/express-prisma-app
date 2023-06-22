@@ -38,7 +38,6 @@ app.use(session({
         sameSite: "none",
         httpOnly: true,
         secure: true,
-        signed: true
     }
 }))
 
