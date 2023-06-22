@@ -17,7 +17,7 @@ dotenv.config();
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cors({
-    origin: FRONT_END_URL,
+    origin: "*",
     credentials: true,
 }));
 
@@ -35,7 +35,7 @@ app.use(session({
     saveUninitialized: false,
     cookie: {
         maxAge: 2 * 60 * 100 * 1000,
-        sameSite: "none",
+        sameSite: "lax",
         httpOnly: true,
         secure: true,
     }
