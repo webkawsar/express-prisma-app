@@ -76,12 +76,27 @@ const updateUserValidator = [
             }
         })
 
-        if(req.user?.email === email) {
+        if(!user) {
             return true;
-        } else if(!user) {
-            return true;
+        } else if(user) {
+
+            if((req.user?.role === "Admin" || req.user?.role === "Support") && req.user?.email === email) {
+                throw new Error("This email is associated with another account");
+
+            } else if((req.user?.role === "Admin" || req.user?.role === "Support") && user?.id !== Number(req.params?.userId)) {
+                throw new Error("This email is associated with another account");
+
+            } else if((req.user?.role === "Admin" || req.user?.role === "Support") && user?.id === Number(req.params?.userId)) {
+                return true;
+
+            } else if(req.user?.email === email) {
+                return true;
+            } else {
+                throw new Error("This email is associated with another account");
+            }
+
         } else {
-            throw new Error("Email already associated with another user's email");
+            throw new Error("This email is associated with another account");
         }
     })
 ];
