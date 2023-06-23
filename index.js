@@ -27,6 +27,7 @@ const store = new (require('connect-pg-simple')(session))({
     createTableIfMissing: true
 })
 
+app.set('trust proxy', 1)
 // session configuration
 app.use(session({
     secret: process.env.SESSION_SECRET,
