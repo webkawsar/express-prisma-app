@@ -37,8 +37,6 @@ app.use(session({
         maxAge: 2 * 60 * 100 * 1000,
         sameSite: "lax",
         httpOnly: process.env.NODE_ENV === 'development',
-        secure: true,
-        signed: true
     }
 }))
 
