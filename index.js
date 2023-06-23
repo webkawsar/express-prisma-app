@@ -27,8 +27,8 @@ const store = new (require('connect-pg-simple')(session))({
     createTableIfMissing: true
 })
 
-app.set('trust proxy', 1)
 // session configuration
+app.set('trust proxy', 1)
 app.use(session({
     secret: process.env.SESSION_SECRET,
     store,
@@ -46,7 +46,6 @@ app.use(session({
 // passport configuration
 app.use(passport.authenticate('session'));
 localStrategy(passport);
-// googleStrategy(passport);
 
 
 // api routes
