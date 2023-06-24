@@ -23,12 +23,12 @@ const register = (to, token) => {
     }
 };
 
-const forgetData = (to, token) => ({
+const forgetEmail = (to, token) => ({
     from: process.env.SMTP_USERNAME,
     to,
     subject: 'Reset Password',
-    text: `You requested to reset password.Please click the link to reset password <a href="${FRONT_END_URL}/auth/reset-password/${token}">Reset Password</a>`,
-    html: `<p>You requested to reset password.Please click the link to reset password <a href="${FRONT_END_URL}/auth/reset-password/${token}">Reset Password</a></p>`,
+    text: `You requested to reset password.Please click the link to reset password <a href="${FRONT_END_URL}/reset-password?token=${token}">Reset Password</a>`,
+    html: `<p>You requested to reset password.Please click the link to reset password <a href="${FRONT_END_URL}/reset-password?token=${token}">Reset Password</a></p>`,
 });
 
 const userEmail = (to, token, password) => ({
@@ -42,6 +42,6 @@ const userEmail = (to, token, password) => ({
 module.exports = {
     transporter,
     register,
-    forgetData,
+    forgetEmail,
     userEmail
 };

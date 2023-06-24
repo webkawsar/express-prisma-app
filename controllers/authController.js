@@ -2,7 +2,7 @@ const _ = require("lodash");
 const jwt = require("jsonwebtoken");
 const prisma = require("../lib/prisma");
 const bcryptjs = require("bcryptjs");
-const { transporter, forgetData, register } = require("../config/mailConfig");
+const { transporter, register, forgetEmail } = require("../config/mailConfig");
 const generateAuthToken = require("../helpers/generateAuthToken");
 
 module.exports.register = async (req, res, next) => {
@@ -100,23 +100,6 @@ module.exports.login = async (req, res, next) => {
   res.send({ success: true, user });
 };
 
-module.exports.loginFailed = (req, res, next) => {
-  res.status(400).send({ success: false, message: "Login Failed!" });
-}
-
-exports.logout = async (req, res, next) => {
-
-  req.logout((error) => {
-    if (error) {
-      return next(error);
-    }
-
-    res.send({ success: true, message: "Logout successful" });
-  });
-};
-
-
-
 exports.forgetPassword = async (req, res, next) => {
   try {
     // generate token
@@ -141,14 +124,14 @@ exports.forgetPassword = async (req, res, next) => {
     });
 
     // send email
-    await transporter.sendMail(forgetData(req?.forgetUser?.email, token));
+    await transporter.sendMail(forgetEmail(req?.forgetUser?.email, token));
     res.send({
       success: true,
       message:
         "Reset password link was sent to your email. Please follow the instructions",
-      token,
     });
   } catch (error) {
+
     // set user reset token null
     await prisma.user.update({
       where: {
@@ -159,10 +142,7 @@ exports.forgetPassword = async (req, res, next) => {
       },
     });
 
-    res.status(500).send({
-      success: false,
-      message: "Internal Server Error",
-    });
+    next(error);
   }
 };
 
@@ -178,7 +158,7 @@ exports.resetVerify = (req, res, next) => {
 
     const user = await prisma.user.findUnique({
       where: {
-        email: decoded.email,
+        email: decoded?.email,
       },
     });
 
@@ -194,10 +174,18 @@ exports.resetVerify = (req, res, next) => {
 };
 
 exports.reset = (req, res, next) => {
+  // picked  necessary data
+  const pickedData = _.pick(req.body, [
+    "password",
+    "token"
+  ]);
+
+
   jwt.verify(
-    req.body.token,
+    pickedData.token,
     process.env.FORGET_SECRET,
     async (error, decoded) => {
+      
       if (error) {
         return res.status(400).send({
           success: false,
@@ -207,8 +195,8 @@ exports.reset = (req, res, next) => {
 
       const user = await prisma.user.findUnique({
         where: {
-          email: decoded.email,
-        },
+          email: decoded?.email,
+        }
       });
 
       if (!user) {
@@ -218,10 +206,10 @@ exports.reset = (req, res, next) => {
         });
       }
 
-      const hashedPassword = await bcryptjs.hash(req.body.password, 12);
+      const hashedPassword = await bcryptjs.hash(pickedData.password, 12);
       await prisma.user.update({
         where: {
-          email: decoded.email,
+          email: decoded?.email,
         },
         data: {
           resetToken: null,
@@ -235,4 +223,14 @@ exports.reset = (req, res, next) => {
       });
     }
   );
+};
+
+exports.logout = async (req, res, next) => {
+  req.logout((error) => {
+    if (error) {
+      return next(error);
+    }
+
+    res.send({ success: true, message: "Logout successful" });
+  });
 };
