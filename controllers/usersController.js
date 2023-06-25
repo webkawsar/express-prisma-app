@@ -172,42 +172,10 @@ module.exports.delete = async (req, res, next) => {
   try {
     const { userId } = req.params;
 
-    // checking user exists or not
-    const user = await prisma.user.findUnique({
-      where: {
-        id: Number(userId),
-      },
-    });
-
-    if (!user) {
-      return res
-        .status(404)
-        .send({ success: false, message: "User doesn't exists" });
-    }
-
-    // checking permission
-    if (req.user?.role === "User" && req.user?.id !== user.id) {
-      return res.status(403).send({
-        success: false,
-        message: "You are not allowed to perform the action",
-      });
-    }
-
-    if (
-      req.user?.role === "Support" &&
-      (user.role === "Admin" ||
-        (user.role === "Support" && req.user?.id !== user.id))
-    ) {
-      return res.status(403).send({
-        success: false,
-        message: "You are not allowed to perform the action",
-      });
-    }
-
     // delete user
     const deletedUser = await prisma.user.delete({
       where: {
-        id: Number(userId),
+        id: Number(userId)
       },
       select: {
         id: true,
