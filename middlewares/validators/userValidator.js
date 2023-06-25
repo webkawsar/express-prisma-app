@@ -84,17 +84,14 @@ const updateUserValidator = [
 
       if ((req.user?.role === "Admin" || req.user?.role === "Support") && user?.id !== Number(req.params?.userId)) {
         throw new Error("This email is associated with another account");
-      } else if (
-        (req.user?.role === "Admin" || req.user?.role === "Support") &&
-        user?.id === Number(req.params?.userId)
-      ) {
+      } else if ((req.user?.role === "Admin" || req.user?.role === "Support") && user?.id === Number(req.params?.userId)) {
         return true;
       } else if (req.user?.email === email) {
         return true;
       } else {
         throw new Error("This email is associated with another account");
       }
-      
+
     } else {
       throw new Error("This email is associated with another account");
     }

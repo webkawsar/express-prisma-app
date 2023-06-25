@@ -49,7 +49,6 @@ exports.editAndDeletePermission = async (req, res, next) => {
     }
 
     // Admin can update all users data
-    req.updateUser = user;
     next();
     
   } catch (error) {
