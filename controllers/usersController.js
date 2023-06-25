@@ -11,30 +11,23 @@ const {
 } = require("../config/mailConfig");
 const generateAuthToken = require("../helpers/generateAuthToken");
 
-
-module.exports.create = async (req, res, next) => {
+module.exports.addUser = async (req, res, next) => {
   try {
-
-    // checking permissions
-    if(!(req.user.role === "Admin" || req.user.role === "Support")) {
-      return res.status(403).send({ success: false, message: "You are not allowed to perform the action" });
-    }
-
     // picked  necessary data
     const pickedData = _.pick(req.body, [
       "firstName",
       "lastName",
       "email",
-      "role"
+      "role",
     ]);
 
-    // Support can create only User
-    if(req.user.role === "Support") {
+    // Support can add only User
+    if (req.user.role === "Support") {
       pickedData.role = "User";
     }
 
     // password bcrypt and user create
-    const password = crypto.randomBytes(5).toString('hex');
+    const password = crypto.randomBytes(5).toString("hex");
     const hashedPassword = await bcryptjs.hash(password, 12);
     const user = await prisma.user.create({
       data: {
@@ -48,7 +41,7 @@ module.exports.create = async (req, res, next) => {
         email: true,
         role: true,
         isVerified: true,
-      }
+      },
     });
 
     // generate token
@@ -67,10 +60,9 @@ module.exports.create = async (req, res, next) => {
     await transporter.sendMail(userEmail(user.email, token, password));
     res.status(201).send({
       success: true,
-      message: "Please check your email and verify account",
-      user
+      user,
+      message: "The user added successfully, email sent with the password",
     });
-
   } catch (error) {
     next(error);
   }
@@ -123,8 +115,10 @@ module.exports.getSingle = async (req, res, next) => {
       },
     });
 
-    if(!user) {
-      return res.status(404).send({ success: false, message: 'User not found' });
+    if (!user) {
+      return res
+        .status(404)
+        .send({ success: false, message: "User not found" });
     }
 
     res.send({ success: true, user });
@@ -165,25 +159,21 @@ module.exports.update = async (req, res, next) => {
 
     // checking permission
     if (req.user?.role === "User" && req.user?.id !== user.id) {
-        return res
-        .status(403)
-        .send({
-            success: false,
-            message: "You are not allowed to perform the action",
-        });
+      return res.status(403).send({
+        success: false,
+        message: "You are not allowed to perform the action",
+      });
     }
 
     if (
-        req.user?.role === "Support" &&
-        (user.role === "Admin" ||
+      req.user?.role === "Support" &&
+      (user.role === "Admin" ||
         (user.role === "Support" && req.user?.id !== user.id))
     ) {
-        return res
-        .status(403)
-        .send({
-            success: false,
-            message: "You are not allowed to perform the action",
-        });
+      return res.status(403).send({
+        success: false,
+        message: "You are not allowed to perform the action",
+      });
     }
 
     // update user
@@ -229,12 +219,10 @@ module.exports.delete = async (req, res, next) => {
 
     // checking permission
     if (req.user?.role === "User" && req.user?.id !== user.id) {
-      return res
-        .status(403)
-        .send({
-          success: false,
-          message: "You are not allowed to perform the action",
-        });
+      return res.status(403).send({
+        success: false,
+        message: "You are not allowed to perform the action",
+      });
     }
 
     if (
@@ -242,12 +230,10 @@ module.exports.delete = async (req, res, next) => {
       (user.role === "Admin" ||
         (user.role === "Support" && req.user?.id !== user.id))
     ) {
-      return res
-        .status(403)
-        .send({
-          success: false,
-          message: "You are not allowed to perform the action",
-        });
+      return res.status(403).send({
+        success: false,
+        message: "You are not allowed to perform the action",
+      });
     }
 
     // delete user
@@ -262,7 +248,7 @@ module.exports.delete = async (req, res, next) => {
         email: true,
         role: true,
         isVerified: true,
-      }
+      },
     });
 
     res.send({ success: true, user: deletedUser });
