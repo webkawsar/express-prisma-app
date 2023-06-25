@@ -1,7 +1,7 @@
 const { check, validationResult } = require("express-validator");
 const prisma = require("../../lib/prisma");
 
-const createUserValidator = [
+const addUserValidator = [
   check("firstName")
     .notEmpty()
     .withMessage("First name is required")
@@ -38,7 +38,7 @@ const createUserValidator = [
   }),
 ];
 
-const createUserValidationResult = (req, res, next) => {
+const addUserValidationResult = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
     return res
@@ -74,17 +74,15 @@ const updateUserValidator = [
   check("email").custom(async (email, { req }) => {
     const user = await prisma.user.findUnique({
       where: {
-        email,
-      },
+        email
+      }
     });
 
     if (!user) {
       return true;
     } else if (user) {
-      if (
-        (req.user?.role === "Admin" || req.user?.role === "Support") &&
-        user?.id !== Number(req.params?.userId)
-      ) {
+
+      if ((req.user?.role === "Admin" || req.user?.role === "Support") && user?.id !== Number(req.params?.userId)) {
         throw new Error("This email is associated with another account");
       } else if (
         (req.user?.role === "Admin" || req.user?.role === "Support") &&
@@ -96,6 +94,7 @@ const updateUserValidator = [
       } else {
         throw new Error("This email is associated with another account");
       }
+      
     } else {
       throw new Error("This email is associated with another account");
     }
@@ -113,8 +112,8 @@ const updateUserValidationResult = (req, res, next) => {
 };
 
 module.exports = {
-  createUserValidator,
-  createUserValidationResult,
+  addUserValidator,
+  addUserValidationResult,
   updateUserValidator,
   updateUserValidationResult,
 };

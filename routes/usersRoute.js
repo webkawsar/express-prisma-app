@@ -7,31 +7,31 @@ const {
 } = require("../middlewares/validators/authValidator");
 const protect = require("../middlewares/protect");
 const {
-  createUserValidator,
-  createUserValidationResult,
   updateUserValidator,
   updateUserValidationResult,
+  addUserValidator,
+  addUserValidationResult,
 } = require("../middlewares/validators/userValidator");
-const isAdminAndSupport = require("../middlewares/isAdminAndSupport");
-const isPermission = require("../middlewares/isPermission");
+const { addPermission, editAndDeletePermission } = require("../middlewares/permission");
+
 
 const router = express.Router();
 router.get("/users/:userId", protect, usersController.getSingle);
 router.get("/users", protect, usersController.getAll);
 router.post(
   "/users",
-  [protect, isPermission, createUserValidator, createUserValidationResult],
+  [protect, addPermission, addUserValidator, addUserValidationResult],
   usersController.addUser
 );
 
 router.patch(
   "/users/:userId",
-  [protect, isAdminAndSupport, updateUserValidator, updateUserValidationResult],
+  [protect, editAndDeletePermission, updateUserValidator, updateUserValidationResult],
   usersController.update
 );
 router.delete(
   "/users/:userId",
-  [protect, isAdminAndSupport],
+  [protect, editAndDeletePermission],
   usersController.delete
 );
 
