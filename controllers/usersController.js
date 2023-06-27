@@ -159,7 +159,7 @@ module.exports.update = async (req, res, next) => {
         email: true,
         role: true,
         isVerified: true,
-      }
+      },
     });
 
     res.send({ success: true, user: updatedUser });
@@ -175,7 +175,7 @@ module.exports.delete = async (req, res, next) => {
     // delete user
     const deletedUser = await prisma.user.delete({
       where: {
-        id: Number(userId)
+        id: Number(userId),
       },
       select: {
         id: true,
@@ -186,6 +186,14 @@ module.exports.delete = async (req, res, next) => {
         isVerified: true,
       },
     });
+
+    if (req.user?.id === Number(userId)) {
+      req.logout((error) => {
+        if (error) {
+          return next(error);
+        }
+      });
+    }
 
     res.send({ success: true, user: deletedUser });
   } catch (error) {

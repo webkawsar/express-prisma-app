@@ -131,7 +131,6 @@ exports.forgetPassword = async (req, res, next) => {
         "Reset password link was sent to your email. Please follow the instructions",
     });
   } catch (error) {
-
     // set user reset token null
     await prisma.user.update({
       where: {
@@ -175,17 +174,12 @@ exports.resetVerify = (req, res, next) => {
 
 exports.reset = (req, res, next) => {
   // picked  necessary data
-  const pickedData = _.pick(req.body, [
-    "password",
-    "token"
-  ]);
-
+  const pickedData = _.pick(req.body, ["password", "token"]);
 
   jwt.verify(
     pickedData.token,
     process.env.FORGET_SECRET,
     async (error, decoded) => {
-      
       if (error) {
         return res.status(400).send({
           success: false,
@@ -196,7 +190,7 @@ exports.reset = (req, res, next) => {
       const user = await prisma.user.findUnique({
         where: {
           email: decoded?.email,
-        }
+        },
       });
 
       if (!user) {
